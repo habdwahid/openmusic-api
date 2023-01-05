@@ -1,0 +1,29 @@
+{
+  "name": "openmusic-api",
+  "version": "1.0.0",
+  "description": "API application for Dicoding Indonesia's course purpose",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app",
+    "migrate": "node-pg-migrate",
+    "start": "node app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.1.0",
+    "@hapi/jwt": "^3.0.0",
+    "dotenv": "^16.0.3",
+    "joi": "^17.7.0",
+    "nanoid": "^3.3.4",
+    "node-pg-migrate": "^6.2.2",
+    "pg": "^8.8.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.31.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "nodemon": "^2.0.20"
+  }
+}
