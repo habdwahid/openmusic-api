@@ -1,6 +1,7 @@
 class PlaylistsHandler {
-  constructor(service, songsService, validator) {
+  constructor(service, activitiesService, songsService, validator) {
     this._service = service;
+    this._activitiesService = activitiesService;
     this._songsService = songsService;
     this._validator = validator;
   }
@@ -61,6 +62,7 @@ class PlaylistsHandler {
     const { id: credentialId } = request.auth.credentials;
     const { playlistId } = request.params;
     const { songId } = request.payload;
+    const action = 'add';
 
     // Verifying playlist access
     await this._service.verifyPlaylistAccess(playlistId, credentialId);
@@ -69,6 +71,10 @@ class PlaylistsHandler {
     await this._songsService.verifySongById(songId);
 
     await this._service.addSongIntoPlaylist(playlistId, songId);
+
+    await this._activitiesService.addActivity({
+      action, playlistId, songId, credentialId,
+    });
 
     // Response
     const res = h.response({
@@ -104,6 +110,7 @@ class PlaylistsHandler {
     const { id: credentialId } = request.auth.credentials;
     const { playlistId } = request.params;
     const { songId } = request.payload;
+    const action = 'delete';
 
     // Verifying playlist access
     await this._service.verifyPlaylistAccess(playlistId, credentialId);
@@ -113,9 +120,31 @@ class PlaylistsHandler {
 
     await this._service.deleteSongFromPlaylistId(songId);
 
+    await this._activitiesService.addActivity({
+      action, playlistId, songId, credentialId,
+    });
+
     return {
       status: 'success',
       message: 'Berhasil menghapus lagu di dalam playlist',
+    };
+  }
+
+  async getPlaylistActivitiesByIdHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+    const { playlistId } = request.params;
+
+    // Verifying playlist access
+    await this._service.verifyPlaylistAccess(playlistId, credentialId);
+
+    const activities = await this._activitiesService.getActivitiesByPlaylistId(playlistId);
+
+    return {
+      status: 'success',
+      data: {
+        playlistId,
+        activities,
+      },
     };
   }
 }
