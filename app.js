@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
 const albums = require('./src/api/albums');
 const authentications = require('./src/api/authentications');
 const collaborations = require('./src/api/collaborations');
@@ -18,6 +20,7 @@ const PlaylistsService = require('./src/services/postgres/PlaylistsService');
 const SongsService = require('./src/services/postgres/SongsService');
 const UsersService = require('./src/services/postgres/UsersService');
 const ProducerService = require('./src/services/rabbitmq/ProducerService');
+const StorageService = require('./src/services/storage/StorageService');
 const TokenManager = require('./src/tokenize/TokenManager');
 const AlbumsValidator = require('./src/validator/albums');
 const AuthenticationsValidator = require('./src/validator/authentications');
@@ -34,6 +37,7 @@ const init = async () => {
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);
   const songsService = new SongsService();
+  const storageService = new StorageService(path.resolve(__dirname, 'src/api/albums/file/images'));
   const usersService = new UsersService();
 
   // Server configuration
@@ -81,9 +85,14 @@ const init = async () => {
     return h.continue;
   });
 
-  await server.register({
-    plugin: Jwt,
-  });
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+    {
+      plugin: Inert,
+    },
+  ]);
 
   server.auth.strategy('openmusic-api_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
@@ -129,6 +138,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        storageService,
         validator: AlbumsValidator,
       },
     },
