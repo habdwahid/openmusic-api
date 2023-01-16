@@ -5,6 +5,7 @@ const Jwt = require('@hapi/jwt');
 const albums = require('./src/api/albums');
 const authentications = require('./src/api/authentications');
 const collaborations = require('./src/api/collaborations');
+const _exports = require('./src/api/exports');
 const playlists = require('./src/api/playlists');
 const songs = require('./src/api/songs');
 const users = require('./src/api/users');
@@ -16,10 +17,12 @@ const CollaborationsService = require('./src/services/postgres/CollaborationsSer
 const PlaylistsService = require('./src/services/postgres/PlaylistsService');
 const SongsService = require('./src/services/postgres/SongsService');
 const UsersService = require('./src/services/postgres/UsersService');
+const ProducerService = require('./src/services/rabbitmq/ProducerService');
 const TokenManager = require('./src/tokenize/TokenManager');
 const AlbumsValidator = require('./src/validator/albums');
 const AuthenticationsValidator = require('./src/validator/authentications');
 const CollaborationsValidator = require('./src/validator/collaborations');
+const ExportsValidator = require('./src/validator/exports');
 const PlaylistsValidator = require('./src/validator/playlists');
 const SongsValidator = require('./src/validator/songs');
 const UsersValidator = require('./src/validator/users');
@@ -145,6 +148,14 @@ const init = async () => {
         playlistsService,
         usersService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        playlistsService,
+        validator: ExportsValidator,
       },
     },
   ]);
