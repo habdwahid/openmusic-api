@@ -29,10 +29,12 @@ const ExportsValidator = require('./src/validator/exports');
 const PlaylistsValidator = require('./src/validator/playlists');
 const SongsValidator = require('./src/validator/songs');
 const UsersValidator = require('./src/validator/users');
+const CacheService = require('./src/services/redis/CacheService');
 
 const init = async () => {
   const activitiesService = new ActivitiesService();
-  const albumsService = new AlbumsService();
+  const cacheService = new CacheService();
+  const albumsService = new AlbumsService(cacheService);
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);

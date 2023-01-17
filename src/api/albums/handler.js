@@ -85,6 +85,45 @@ class AlbumsHandler {
     res.code(201);
     return res;
   }
+
+  async postAlbumLikeHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const { albumId } = request.params;
+
+    // Verifying album id
+    await this._service.verifyAlbumById(albumId);
+
+    const message = await this._service.checkAlbumLikes(albumId, credentialId);
+
+    // Response
+    const res = h.response({
+      status: 'success',
+      message,
+    });
+
+    res.code(201);
+    return res;
+  }
+
+  async getAlbumLikesHandler(request, h) {
+    const { albumId } = request.params;
+
+    // Verify album id
+    await this._service.verifyAlbumById(albumId);
+
+    const { likes, cached } = await this._service.getAlbumLikes(albumId);
+
+    // Response
+    const res = h.response({
+      status: 'success',
+      data: {
+        likes,
+      },
+    });
+
+    if (cached) res.header('X-Data-Source', 'cache');
+    return res;
+  }
 }
 
 module.exports = AlbumsHandler;
